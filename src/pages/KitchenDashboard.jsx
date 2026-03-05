@@ -7,20 +7,20 @@ import api from '../api/axios';
 
 const NAV = [
   { key: 'inventory', icon: '📦', label: 'My Inventory' },
-  { key: 'update',    icon: '✏️', label: 'Update Stock' },
-  { key: 'history',   icon: '📜', label: 'Supply History' },
+  { key: 'update', icon: '✏️', label: 'Update Stock' },
+  { key: 'history', icon: '📜', label: 'Supply History' },
 ];
 
 export default function KitchenDashboard() {
   const { user } = useAuth();
-  const toast    = useToast();
-  const [page, setPage]         = useState('inventory');
-  const [data, setData]         = useState(null);
-  const [history, setHistory]   = useState([]);
-  const [loading, setLoading]   = useState(false);
-  const [updates, setUpdates]   = useState({});
-  const [saving, setSaving]     = useState(false);
-  const [dirty, setDirty]       = useState(false);
+  const toast = useToast();
+  const [page, setPage] = useState('inventory');
+  const [data, setData] = useState(null);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [updates, setUpdates] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [dirty, setDirty] = useState(false);
 
   useEffect(() => { loadInventory(); }, []);
   useEffect(() => { if (page === 'history') loadHistory(); }, [page]);
@@ -71,10 +71,10 @@ export default function KitchenDashboard() {
   };
 
   const inventory = data?.inventory || [];
-  const location  = data?.location;
-  const critical  = inventory.filter(i => i.status === 'CRITICAL').length;
-  const low       = inventory.filter(i => i.status === 'LOW').length;
-  const ok        = inventory.filter(i => i.status === 'OK').length;
+  const location = data?.location;
+  const critical = inventory.filter(i => i.status === 'CRITICAL').length;
+  const low = inventory.filter(i => i.status === 'LOW').length;
+  const ok = inventory.filter(i => i.status === 'OK').length;
 
   const nav = NAV.map(n => ({
     ...n, active: page === n.key,
@@ -97,9 +97,9 @@ export default function KitchenDashboard() {
 
               {/* Stats */}
               <div className="grid grid-cols-3 gap-4">
-                <StatCard icon="🟢" label="OK Items"    value={ok}       gradient="bg-gradient-to-br from-emerald-500 to-emerald-700" />
-                <StatCard icon="🟡" label="Low Stock"   value={low}      gradient="bg-gradient-to-br from-amber-500 to-amber-700" />
-                <StatCard icon="🔴" label="Critical"    value={critical} gradient="bg-gradient-to-br from-red-500 to-red-700" />
+                <StatCard icon="🟢" label="OK Items" value={ok} gradient="bg-gradient-to-br from-emerald-500 to-emerald-700" />
+                <StatCard icon="🟡" label="Low Stock" value={low} gradient="bg-gradient-to-br from-amber-500 to-amber-700" />
+                <StatCard icon="🔴" label="Critical" value={critical} gradient="bg-gradient-to-br from-red-500 to-red-700" />
               </div>
 
               {/* Alerts */}
@@ -123,7 +123,7 @@ export default function KitchenDashboard() {
                 <div className="table-wrap">
                   <table className="table">
                     <thead><tr>
-                      {['Ingredient','Unit','Stock Level','Max','Supplied','Current','Gap','Status'].map(h =>
+                      {['Ingredient', 'Unit', 'Stock Level', 'Max', 'Supplied', 'Current', 'Gap', 'Status'].map(h =>
                         <th key={h}>{h}</th>)}
                     </tr></thead>
                     <tbody>
@@ -248,7 +248,7 @@ export default function KitchenDashboard() {
                 <div className="card p-0 overflow-hidden">
                   <div className="table-wrap">
                     <table className="table">
-                      <thead><tr>{['Date & Time','Ingredient','Quantity Received','Notes'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                      <thead><tr>{['Date & Time', 'Ingredient', 'Quantity Received', 'Notes'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                       <tbody>
                         {history.map((h, i) => (
                           <tr key={i}>

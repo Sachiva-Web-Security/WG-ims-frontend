@@ -13,13 +13,13 @@ import { UnitSelect } from '../utils/units';
 import api from '../api/axios';
 
 const NAV = [
-  { key: 'dashboard',    icon: '📊', label: 'Dashboard'      },
-  { key: 'charts',       icon: '📈', label: 'Stock Charts'   },
-  { key: 'ingredients',  icon: '🥗', label: 'Ingredients'    },
-  { key: 'stock-config', icon: '⚙️', label: 'Stock Limits'   },
-  { key: 'users',        icon: '👥', label: 'Users'          },
-  { key: 'locations',    icon: '📍', label: 'Locations'      },
-  { key: 'audit',        icon: '📋', label: 'Audit Log'      },
+  { key: 'dashboard', icon: '📊', label: 'Dashboard' },
+  { key: 'charts', icon: '📈', label: 'Stock Charts' },
+  { key: 'ingredients', icon: '🥗', label: 'Ingredients' },
+  { key: 'stock-config', icon: '⚙️', label: 'Stock Limits' },
+  { key: 'users', icon: '👥', label: 'Users' },
+  { key: 'locations', icon: '📍', label: 'Locations' },
+  { key: 'audit', icon: '📋', label: 'Audit Log' },
 ];
 
 // ─── Custom Tooltip for charts ─────────────────────────────────────────────
@@ -45,10 +45,10 @@ function LocationChart({ location, inventory }) {
       : item.ingredient_name,
     fullName: item.ingredient_name,
     current: parseFloat(item.current_quantity),
-    max:     parseFloat(item.max_quantity),
-    min:     parseFloat(item.min_quantity),
-    unit:    item.unit,
-    status:  item.status,
+    max: parseFloat(item.max_quantity),
+    min: parseFloat(item.min_quantity),
+    unit: item.unit,
+    status: item.status,
   }));
 
   const statusColor = (s) => s === 'OK' ? '#10B981' : s === 'LOW' ? '#F59E0B' : '#EF4444';
@@ -63,8 +63,8 @@ function LocationChart({ location, inventory }) {
           <p className="text-xs text-slate-400">{inventory.length} ingredients tracked</p>
         </div>
         <div className="flex gap-3 text-xs">
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block"/>Current</span>
-          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-slate-200 inline-block"/>Max</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-amber-400 inline-block" />Current</span>
+          <span className="flex items-center gap-1"><span className="w-3 h-3 rounded bg-slate-200 inline-block" />Max</span>
         </div>
       </div>
       <ResponsiveContainer width="100%" height={220}>
@@ -81,10 +81,10 @@ function LocationChart({ location, inventory }) {
           />
           <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} width={30} />
           <Tooltip content={<ChartTooltip />} />
-          <Bar dataKey="max" fill="#E2E8F0" radius={[4,4,0,0]} name="Max">
+          <Bar dataKey="max" fill="#E2E8F0" radius={[4, 4, 0, 0]} name="Max">
             {data.map((_, i) => <Cell key={i} fill="#E2E8F0" />)}
           </Bar>
-          <Bar dataKey="current" radius={[4,4,0,0]} name="Current">
+          <Bar dataKey="current" radius={[4, 4, 0, 0]} name="Current">
             {data.map((entry, i) => (
               <Cell key={i} fill={statusColor(entry.status)} />
             ))}
@@ -95,11 +95,10 @@ function LocationChart({ location, inventory }) {
       <div className="flex flex-wrap gap-2 mt-2">
         {inventory.map(item => (
           <span key={item.ingredient_name}
-            className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-              item.status === 'OK' ? 'bg-emerald-100 text-emerald-700' :
-              item.status === 'LOW' ? 'bg-amber-100 text-amber-700' :
-              'bg-red-100 text-red-700'
-            }`}>
+            className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.status === 'OK' ? 'bg-emerald-100 text-emerald-700' :
+                item.status === 'LOW' ? 'bg-amber-100 text-amber-700' :
+                  'bg-red-100 text-red-700'
+              }`}>
             {item.ingredient_name}: {item.current_quantity}/{item.max_quantity} {item.unit}
           </span>
         ))}
@@ -111,29 +110,29 @@ function LocationChart({ location, inventory }) {
 // ─── Main Component ────────────────────────────────────────────────────────
 export default function SuperAdminDashboard() {
   const toast = useToast();
-  const [page, setPage]           = useState('dashboard');
-  const [stats, setStats]         = useState(null);
-  const [users, setUsers]         = useState([]);
+  const [page, setPage] = useState('dashboard');
+  const [stats, setStats] = useState(null);
+  const [users, setUsers] = useState([]);
   const [locations, setLocations] = useState([]);
   const [ingredients, setIngredients] = useState([]);
-  const [auditLog, setAuditLog]   = useState([]);
+  const [auditLog, setAuditLog] = useState([]);
   const [chartData, setChartData] = useState([]);
   const [stockConfig, setStockConfig] = useState([]);
   const [selectedConfigLoc, setSelectedConfigLoc] = useState('');
-  const [loading, setLoading]     = useState(false);
-  const [search, setSearch]       = useState('');
+  const [loading, setLoading] = useState(false);
+  const [search, setSearch] = useState('');
 
   // Modals
-  const [userModal, setUserModal]     = useState(false);
-  const [locModal, setLocModal]       = useState(false);
-  const [ingModal, setIngModal]       = useState(false);
-  const [confirmDel, setConfirmDel]   = useState(null);
+  const [userModal, setUserModal] = useState(false);
+  const [locModal, setLocModal] = useState(false);
+  const [ingModal, setIngModal] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(null);
   const [confirmDelIng, setConfirmDelIng] = useState(null);
 
   // Forms
-  const [userForm, setUserForm]   = useState({ name:'', email:'', password:'', role:'KITCHEN_USER', location_id:'' });
-  const [locForm, setLocForm]     = useState({ location_code:'', name:'' });
-  const [ingForm, setIngForm]     = useState({ name:'', unit:'lb' });
+  const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'KITCHEN_USER', location_id: '' });
+  const [locForm, setLocForm] = useState({ location_code: '', name: '' });
+  const [ingForm, setIngForm] = useState({ name: '', unit: 'lb' });
   const [formLoading, setFormLoading] = useState(false);
 
   // Stock config inline editing
@@ -212,7 +211,7 @@ export default function SuperAdminDashboard() {
       await api.post('/super-admin/users', userForm);
       toast('User created!', 'success');
       setUserModal(false);
-      setUserForm({ name:'', email:'', password:'', role:'KITCHEN_USER', location_id:'' });
+      setUserForm({ name: '', email: '', password: '', role: 'KITCHEN_USER', location_id: '' });
       load('users');
     } catch (err) { toast(err.response?.data?.error || 'Failed', 'error'); }
     setFormLoading(false);
@@ -233,7 +232,7 @@ export default function SuperAdminDashboard() {
       await api.post('/super-admin/locations', locForm);
       toast('Location created!', 'success');
       setLocModal(false);
-      setLocForm({ location_code:'', name:'' });
+      setLocForm({ location_code: '', name: '' });
       load('locations');
     } catch (err) { toast(err.response?.data?.error || 'Failed', 'error'); }
     setFormLoading(false);
@@ -246,7 +245,7 @@ export default function SuperAdminDashboard() {
       await api.post('/super-admin/ingredients', ingForm);
       toast(`${ingForm.name} added to master list!`, 'success');
       setIngModal(false);
-      setIngForm({ name:'', unit:'lb' });
+      setIngForm({ name: '', unit: 'lb' });
       load('ingredients');
     } catch (err) { toast(err.response?.data?.error || 'Failed to add ingredient', 'error'); }
     setFormLoading(false);
@@ -284,7 +283,7 @@ export default function SuperAdminDashboard() {
           min_quantity: parseFloat(vals.min) || 0,
         });
         ok++;
-      } catch {}
+      } catch { }
     }
     toast(`${ok} stock limits saved!`, 'success');
     setFormLoading(false);
@@ -318,10 +317,10 @@ export default function SuperAdminDashboard() {
             <div className="space-y-6 fade-up">
               <SectionHeader title="System Overview" sub="WavaGrill IMS · Super Admin Control Center" />
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="fade-up-1"><StatCard icon="👥" label="Active Users"     value={stats.total_users}       gradient="bg-gradient-to-br from-slate-700 to-slate-900" /></div>
-                <div className="fade-up-2"><StatCard icon="📍" label="Locations"        value={stats.total_locations}   gradient="bg-gradient-to-br from-blue-600 to-blue-800" /></div>
-                <div className="fade-up-3"><StatCard icon="🥗" label="Ingredients"      value={stats.total_ingredients} gradient="bg-gradient-to-br from-amber-500 to-amber-700" /></div>
-                <div className="fade-up-4"><StatCard icon="🔴" label="Critical Items"   value={stats.critical_count}    gradient="bg-gradient-to-br from-red-500 to-red-700" /></div>
+                <div className="fade-up-1"><StatCard icon="👥" label="Active Users" value={stats.total_users} gradient="bg-gradient-to-br from-slate-700 to-slate-900" /></div>
+                <div className="fade-up-2"><StatCard icon="📍" label="Locations" value={stats.total_locations} gradient="bg-gradient-to-br from-blue-600 to-blue-800" /></div>
+                <div className="fade-up-3"><StatCard icon="🥗" label="Ingredients" value={stats.total_ingredients} gradient="bg-gradient-to-br from-amber-500 to-amber-700" /></div>
+                <div className="fade-up-4"><StatCard icon="🔴" label="Critical Items" value={stats.critical_count} gradient="bg-gradient-to-br from-red-500 to-red-700" /></div>
               </div>
 
               {/* Location status grid */}
@@ -343,12 +342,12 @@ export default function SuperAdminDashboard() {
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {[
-                  ['📈 Stock Charts',   'charts'],
-                  ['⚙️ Stock Limits',   'stock-config'],
-                  ['🥗 Ingredients',    'ingredients'],
-                  ['👥 Users',          'users'],
-                  ['📍 Locations',      'locations'],
-                  ['📋 Audit Log',      'audit'],
+                  ['📈 Stock Charts', 'charts'],
+                  ['⚙️ Stock Limits', 'stock-config'],
+                  ['🥗 Ingredients', 'ingredients'],
+                  ['👥 Users', 'users'],
+                  ['📍 Locations', 'locations'],
+                  ['📋 Audit Log', 'audit'],
                 ].map(([label, key]) => (
                   <button key={key} onClick={() => setPage(key)}
                     className="card hover:shadow-elevated transition-all cursor-pointer text-left group p-4">
@@ -375,9 +374,9 @@ export default function SuperAdminDashboard() {
               {chartData.length > 0 && (
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: 'Total Items Tracked', value: chartData.reduce((s,l) => s + l.inventory.length, 0), color: 'text-slate-800' },
-                    { label: 'Low Stock Alerts',    value: chartData.reduce((s,l) => s + l.inventory.filter(i=>i.status==='LOW').length, 0), color: 'text-amber-600' },
-                    { label: 'Critical Alerts',     value: totalCritical, color: 'text-red-600' },
+                    { label: 'Total Items Tracked', value: chartData.reduce((s, l) => s + l.inventory.length, 0), color: 'text-slate-800' },
+                    { label: 'Low Stock Alerts', value: chartData.reduce((s, l) => s + l.inventory.filter(i => i.status === 'LOW').length, 0), color: 'text-amber-600' },
+                    { label: 'Critical Alerts', value: totalCritical, color: 'text-red-600' },
                   ].map(s => (
                     <div key={s.label} className="card-sm text-center">
                       <p className={`text-2xl font-bold font-heading ${s.color}`}>{s.value}</p>
@@ -402,27 +401,27 @@ export default function SuperAdminDashboard() {
                 // Build a combined dataset: for each ingredient, show all locations
                 const allIngredients = [...new Set(chartData.flatMap(l => l.inventory.map(i => i.ingredient_name)))];
                 const combined = allIngredients.map(ing => {
-                  const row = { name: ing.length > 12 ? ing.slice(0,12)+'…' : ing };
+                  const row = { name: ing.length > 12 ? ing.slice(0, 12) + '…' : ing };
                   chartData.forEach(loc => {
                     const item = loc.inventory.find(i => i.ingredient_name === ing);
                     row[loc.location] = item ? parseFloat(item.current_quantity) : 0;
                   });
                   return row;
                 });
-                const COLORS = ['#F59E0B','#3B82F6','#10B981','#8B5CF6'];
+                const COLORS = ['#F59E0B', '#3B82F6', '#10B981', '#8B5CF6'];
                 return (
                   <div className="card">
                     <h3 className="font-bold text-slate-800 font-heading mb-1">All Locations — Side by Side</h3>
                     <p className="text-xs text-slate-400 mb-4">Current stock comparison across all locations</p>
                     <ResponsiveContainer width="100%" height={280}>
-                      <BarChart data={combined} margin={{ top:0, right:0, bottom:24, left:0 }} barSize={12}>
+                      <BarChart data={combined} margin={{ top: 0, right: 0, bottom: 24, left: 0 }} barSize={12}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" vertical={false} />
-                        <XAxis dataKey="name" tick={{ fontSize:10, fill:'#94A3B8' }} axisLine={false} tickLine={false} angle={-30} textAnchor="end" interval={0} />
-                        <YAxis tick={{ fontSize:10, fill:'#94A3B8' }} axisLine={false} tickLine={false} width={30} />
+                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} angle={-30} textAnchor="end" interval={0} />
+                        <YAxis tick={{ fontSize: 10, fill: '#94A3B8' }} axisLine={false} tickLine={false} width={30} />
                         <Tooltip content={<ChartTooltip />} />
                         <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '12px' }} />
                         {chartData.map((loc, i) => (
-                          <Bar key={loc.id} dataKey={loc.location} fill={COLORS[i % COLORS.length]} radius={[3,3,0,0]} />
+                          <Bar key={loc.id} dataKey={loc.location} fill={COLORS[i % COLORS.length]} radius={[3, 3, 0, 0]} />
                         ))}
                       </BarChart>
                     </ResponsiveContainer>
@@ -447,12 +446,12 @@ export default function SuperAdminDashboard() {
                 <div className="table-wrap">
                   <table className="table">
                     <thead><tr>
-                      {['#','Ingredient','Unit','System','Status',''].map(h => <th key={h}>{h}</th>)}
+                      {['#', 'Ingredient', 'Unit', 'System', 'Status', ''].map(h => <th key={h}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {filteredIng.map((ing, i) => (
                         <tr key={ing.id}>
-                          <td className="text-slate-400 font-mono text-xs">{String(ing.id).padStart(3,'0')}</td>
+                          <td className="text-slate-400 font-mono text-xs">{String(ing.id).padStart(3, '0')}</td>
                           <td className="font-medium text-slate-800">{ing.name}</td>
                           <td>
                             <span className="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full font-mono font-medium">
@@ -460,10 +459,10 @@ export default function SuperAdminDashboard() {
                             </span>
                           </td>
                           <td className="text-slate-400 text-xs">
-                            {['tsp','tbsp','fl oz','cup','pt','qt','gal'].includes(ing.unit) ? 'US Volume' :
-                             ['oz','lb'].includes(ing.unit) ? 'US Weight' :
-                             ['ml','liters'].includes(ing.unit) ? 'Metric Volume' :
-                             ['g','kg'].includes(ing.unit) ? 'Metric Weight' : 'Count'}
+                            {['tsp', 'tbsp', 'fl oz', 'cup', 'pt', 'qt', 'gal'].includes(ing.unit) ? 'US Volume' :
+                              ['oz', 'lb'].includes(ing.unit) ? 'US Weight' :
+                                ['ml', 'liters'].includes(ing.unit) ? 'Metric Volume' :
+                                  ['g', 'kg'].includes(ing.unit) ? 'Metric Weight' : 'Count'}
                           </td>
                           <td><span className="badge-active">Active</span></td>
                           <td>
@@ -506,11 +505,10 @@ export default function SuperAdminDashboard() {
                   {locations.filter(l => l.is_active).map(loc => (
                     <button key={loc.id}
                       onClick={() => setSelectedConfigLoc(String(loc.id))}
-                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${
-                        selectedConfigLoc === String(loc.id)
+                      className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${selectedConfigLoc === String(loc.id)
                           ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
                           : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
-                      }`}>
+                        }`}>
                       📍 {loc.name}
                     </button>
                   ))}
@@ -623,7 +621,7 @@ export default function SuperAdminDashboard() {
                 <div className="table-wrap">
                   <table className="table">
                     <thead><tr>
-                      {['Name','Email','Role','Location','Status',''].map(h => <th key={h}>{h}</th>)}
+                      {['Name', 'Email', 'Role', 'Location', 'Status', ''].map(h => <th key={h}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {filteredUsers.map(u => (
@@ -693,7 +691,7 @@ export default function SuperAdminDashboard() {
                 <div className="table-wrap">
                   <table className="table">
                     <thead><tr>
-                      {['Time','User','Role','Action','Details'].map(h => <th key={h}>{h}</th>)}
+                      {['Time', 'User', 'Role', 'Action', 'Details'].map(h => <th key={h}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {auditLog.map(a => (
@@ -733,18 +731,18 @@ export default function SuperAdminDashboard() {
           <div className="grid grid-cols-2 gap-4">
             <Field label="Full Name">
               <input className="input" value={userForm.name} required placeholder="Jane Smith"
-                onChange={e => setUserForm(f=>({...f,name:e.target.value}))} />
+                onChange={e => setUserForm(f => ({ ...f, name: e.target.value }))} />
             </Field>
             <Field label="Email">
               <input className="input" type="email" value={userForm.email} required placeholder="jane@wavagrill.com"
-                onChange={e => setUserForm(f=>({...f,email:e.target.value}))} />
+                onChange={e => setUserForm(f => ({ ...f, email: e.target.value }))} />
             </Field>
             <Field label="Password">
               <input className="input" type="password" value={userForm.password} required placeholder="Min. 8 chars"
-                onChange={e => setUserForm(f=>({...f,password:e.target.value}))} />
+                onChange={e => setUserForm(f => ({ ...f, password: e.target.value }))} />
             </Field>
             <Field label="Role">
-              <select className="input" value={userForm.role} onChange={e => setUserForm(f=>({...f,role:e.target.value}))}>
+              <select className="input" value={userForm.role} onChange={e => setUserForm(f => ({ ...f, role: e.target.value }))}>
                 <option value="KITCHEN_USER">Kitchen User</option>
                 <option value="ADMIN">Admin</option>
                 <option value="SUPER_ADMIN">Super Admin</option>
@@ -754,7 +752,7 @@ export default function SuperAdminDashboard() {
           {userForm.role === 'KITCHEN_USER' && (
             <Field label="Assign Location">
               <select className="input" value={userForm.location_id} required
-                onChange={e => setUserForm(f=>({...f,location_id:e.target.value}))}>
+                onChange={e => setUserForm(f => ({ ...f, location_id: e.target.value }))}>
                 <option value="">Select location…</option>
                 {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
               </select>
@@ -774,11 +772,11 @@ export default function SuperAdminDashboard() {
         <form onSubmit={createLocation} className="space-y-4">
           <Field label="Location Code">
             <input className="input" placeholder="e.g. LOC-005" value={locForm.location_code} required
-              onChange={e => setLocForm(f=>({...f,location_code:e.target.value}))} />
+              onChange={e => setLocForm(f => ({ ...f, location_code: e.target.value }))} />
           </Field>
           <Field label="Location Name">
             <input className="input" placeholder="e.g. Frisco" value={locForm.name} required
-              onChange={e => setLocForm(f=>({...f,name:e.target.value}))} />
+              onChange={e => setLocForm(f => ({ ...f, name: e.target.value }))} />
           </Field>
           <div className="flex gap-3 justify-end">
             <button type="button" onClick={() => setLocModal(false)} className="btn-secondary">Cancel</button>
@@ -794,10 +792,10 @@ export default function SuperAdminDashboard() {
         <form onSubmit={createIngredient} className="space-y-4">
           <Field label="Ingredient Name">
             <input className="input" placeholder="e.g. Chicken Breast" value={ingForm.name} required
-              onChange={e => setIngForm(f=>({...f,name:e.target.value}))} />
+              onChange={e => setIngForm(f => ({ ...f, name: e.target.value }))} />
           </Field>
           <Field label="Unit of Measurement">
-            <UnitSelect value={ingForm.unit} onChange={v => setIngForm(f=>({...f,unit:v}))} />
+            <UnitSelect value={ingForm.unit} onChange={v => setIngForm(f => ({ ...f, unit: v }))} />
           </Field>
           <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs text-blue-700">
             ℹ️ This ingredient will be added to all active locations. Set max/min quantities in <strong>Stock Limits</strong>.

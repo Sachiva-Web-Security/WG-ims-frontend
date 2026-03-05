@@ -17,7 +17,7 @@ export function RoleRedirect() {
   if (loading) return <div className="min-h-screen flex items-center justify-center"><Spinner /></div>;
   if (!user) return <Navigate to="/login" replace />;
   if (user.role === 'SUPER_ADMIN') return <Navigate to="/super-admin" replace />;
-  if (user.role === 'ADMIN')       return <Navigate to="/admin" replace />;
+  if (user.role === 'ADMIN') return <Navigate to="/admin" replace />;
   return <Navigate to="/kitchen" replace />;
 }
 

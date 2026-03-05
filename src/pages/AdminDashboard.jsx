@@ -6,30 +6,30 @@ import { UnitSelect } from '../utils/units';
 import api from '../api/axios';
 
 const NAV = [
-  { key: 'overview',    icon: '📊', label: 'Overview'       },
-  { key: 'location',    icon: '🏪', label: 'Location Detail' },
-  { key: 'ingredients', icon: '🥗', label: 'Ingredients'    },
-  { key: 'dispatch',    icon: '🚚', label: 'Dispatch Supply' },
-  { key: 'history',     icon: '📜', label: 'Supply History'  },
+  { key: 'overview', icon: '📊', label: 'Overview' },
+  { key: 'location', icon: '🏪', label: 'Location Detail' },
+  { key: 'ingredients', icon: '🥗', label: 'Ingredients' },
+  { key: 'dispatch', icon: '🚚', label: 'Dispatch Supply' },
+  { key: 'history', icon: '📜', label: 'Supply History' },
 ];
 
 export default function AdminDashboard() {
   const toast = useToast();
-  const [page, setPage]               = useState('overview');
-  const [dashboard, setDashboard]     = useState([]);
-  const [locations, setLocations]     = useState([]);
+  const [page, setPage] = useState('overview');
+  const [dashboard, setDashboard] = useState([]);
+  const [locations, setLocations] = useState([]);
   const [selectedLoc, setSelectedLoc] = useState(null);
-  const [inventory, setInventory]     = useState([]);
+  const [inventory, setInventory] = useState([]);
   const [ingredients, setIngredients] = useState([]);
-  const [history, setHistory]         = useState([]);
-  const [loading, setLoading]         = useState(false);
-  const [invLoading, setInvLoading]   = useState(false);
-  const [search, setSearch]           = useState('');
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [invLoading, setInvLoading] = useState(false);
+  const [search, setSearch] = useState('');
 
-  const [ingModal, setIngModal]     = useState(false);
-  const [ingForm, setIngForm]       = useState({ name:'', unit:'lb' });
+  const [ingModal, setIngModal] = useState(false);
+  const [ingForm, setIngForm] = useState({ name: '', unit: 'lb' });
   const [ingLoading, setIngLoading] = useState(false);
-  const [dispatch, setDispatch]     = useState({ location_id:'', ingredient_id:'', quantity:'', notes:'' });
+  const [dispatch, setDispatch] = useState({ location_id: '', ingredient_id: '', quantity: '', notes: '' });
   const [dispatching, setDispatching] = useState(false);
 
   useEffect(() => { loadLocations(); loadDashboard(); }, []);
@@ -44,18 +44,18 @@ export default function AdminDashboard() {
     if (page === 'location' && !selectedLoc && locations.length) setSelectedLoc(locations[0].id);
   }, [locations]);
 
-  const loadDashboard  = async () => { setLoading(true); const r = await api.get('/admin/dashboard'); setDashboard(r.data); setLoading(false); };
-  const loadLocations  = async () => { const r = await api.get('/admin/locations'); setLocations(r.data); };
-  const loadInventory  = async (id) => { setInvLoading(true); const r = await api.get(`/admin/locations/${id}/inventory`); setInventory(r.data); setInvLoading(false); };
-  const loadIngredients= async () => { const r = await api.get('/admin/ingredients'); setIngredients(r.data); };
-  const loadHistory    = async () => { const r = await api.get('/admin/supply/history'); setHistory(r.data); };
+  const loadDashboard = async () => { setLoading(true); const r = await api.get('/admin/dashboard'); setDashboard(r.data); setLoading(false); };
+  const loadLocations = async () => { const r = await api.get('/admin/locations'); setLocations(r.data); };
+  const loadInventory = async (id) => { setInvLoading(true); const r = await api.get(`/admin/locations/${id}/inventory`); setInventory(r.data); setInvLoading(false); };
+  const loadIngredients = async () => { const r = await api.get('/admin/ingredients'); setIngredients(r.data); };
+  const loadHistory = async () => { const r = await api.get('/admin/supply/history'); setHistory(r.data); };
 
   const createIngredient = async (e) => {
     e.preventDefault(); setIngLoading(true);
     try {
       await api.post('/admin/ingredients', ingForm);
       toast(`${ingForm.name} added!`, 'success');
-      setIngModal(false); setIngForm({ name:'', unit:'lb' });
+      setIngModal(false); setIngForm({ name: '', unit: 'lb' });
       loadIngredients();
     } catch (err) { toast(err.response?.data?.error || 'Failed', 'error'); }
     setIngLoading(false);
@@ -65,22 +65,22 @@ export default function AdminDashboard() {
     e.preventDefault(); setDispatching(true);
     try {
       await api.post('/admin/supply/dispatch', {
-        location_id:   parseInt(dispatch.location_id),
+        location_id: parseInt(dispatch.location_id),
         ingredient_id: parseInt(dispatch.ingredient_id),
-        quantity:      parseFloat(dispatch.quantity),
-        notes:         dispatch.notes,
+        quantity: parseFloat(dispatch.quantity),
+        notes: dispatch.notes,
       });
       toast('Supply dispatched!', 'success');
-      setDispatch({ location_id:'', ingredient_id:'', quantity:'', notes:'' });
+      setDispatch({ location_id: '', ingredient_id: '', quantity: '', notes: '' });
     } catch (err) { toast(err.response?.data?.error || 'Dispatch failed', 'error'); }
     setDispatching(false);
   };
 
   const totalCritical = dashboard.reduce((s, l) => s + Number(l.critical_count || 0), 0);
-  const totalLow      = dashboard.reduce((s, l) => s + Number(l.low_count || 0), 0);
-  const filteredInv   = inventory.filter(i => i.ingredient_name.toLowerCase().includes(search.toLowerCase()));
-  const currentLocName= locations.find(l => String(l.id) === String(selectedLoc))?.name;
-  const selectedIng   = ingredients.find(i => String(i.id) === String(dispatch.ingredient_id));
+  const totalLow = dashboard.reduce((s, l) => s + Number(l.low_count || 0), 0);
+  const filteredInv = inventory.filter(i => i.ingredient_name.toLowerCase().includes(search.toLowerCase()));
+  const currentLocName = locations.find(l => String(l.id) === String(selectedLoc))?.name;
+  const selectedIng = ingredients.find(i => String(i.id) === String(dispatch.ingredient_id));
 
   const nav = NAV.map(n => ({
     ...n, active: page === n.key,
@@ -98,16 +98,16 @@ export default function AdminDashboard() {
               <SectionHeader title="Kitchen Overview" sub="All locations at a glance"
                 action={<button onClick={loadDashboard} className="btn-secondary">🔄 Refresh</button>} />
               <div className="grid grid-cols-3 gap-4">
-                <StatCard icon="🏪" label="Locations"  value={dashboard.length} gradient="bg-gradient-to-br from-slate-700 to-slate-900" />
-                <StatCard icon="⚠️" label="Low Stock"  value={totalLow}         gradient="bg-gradient-to-br from-amber-500 to-amber-700" />
-                <StatCard icon="🔴" label="Critical"   value={totalCritical}    gradient="bg-gradient-to-br from-red-500 to-red-700" />
+                <StatCard icon="🏪" label="Locations" value={dashboard.length} gradient="bg-gradient-to-br from-slate-700 to-slate-900" />
+                <StatCard icon="⚠️" label="Low Stock" value={totalLow} gradient="bg-gradient-to-br from-amber-500 to-amber-700" />
+                <StatCard icon="🔴" label="Critical" value={totalCritical} gradient="bg-gradient-to-br from-red-500 to-red-700" />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {dashboard.map(loc => {
                   const critical = Number(loc.critical_count || 0);
-                  const low      = Number(loc.low_count || 0);
-                  const ok       = Number(loc.ok_count || 0);
-                  const status   = critical > 0 ? 'CRITICAL' : low > 0 ? 'LOW' : 'OK';
+                  const low = Number(loc.low_count || 0);
+                  const ok = Number(loc.ok_count || 0);
+                  const status = critical > 0 ? 'CRITICAL' : low > 0 ? 'LOW' : 'OK';
                   return (
                     <div key={loc.id} className="card cursor-pointer hover:shadow-elevated transition-all group"
                       onClick={() => { setSelectedLoc(loc.id); setPage('location'); }}>
@@ -123,9 +123,9 @@ export default function AdminDashboard() {
                           <span>Inventory</span><span>{Number(loc.total_items || 0)} items</span>
                         </div>
                         <div className="flex h-2 rounded-full overflow-hidden gap-0.5">
-                          {ok > 0 && <div className="bg-emerald-400 rounded-full" style={{flex:ok}} />}
-                          {low > 0 && <div className="bg-amber-400 rounded-full" style={{flex:low}} />}
-                          {critical > 0 && <div className="bg-red-500 rounded-full pulse-glow" style={{flex:critical}} />}
+                          {ok > 0 && <div className="bg-emerald-400 rounded-full" style={{ flex: ok }} />}
+                          {low > 0 && <div className="bg-amber-400 rounded-full" style={{ flex: low }} />}
+                          {critical > 0 && <div className="bg-red-500 rounded-full pulse-glow" style={{ flex: critical }} />}
                         </div>
                         <div className="flex gap-3 text-xs">
                           <span className="text-emerald-600">✓ {ok} OK</span>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
                   <div className="table-wrap">
                     <table className="table">
                       <thead><tr>
-                        {['Ingredient','Unit','Stock Level','Min','Max','Supplied','Current','Gap','Status'].map(h => <th key={h}>{h}</th>)}
+                        {['Ingredient', 'Unit', 'Stock Level', 'Min', 'Max', 'Supplied', 'Current', 'Gap', 'Status'].map(h => <th key={h}>{h}</th>)}
                       </tr></thead>
                       <tbody>
                         {filteredInv.map(item => (
@@ -214,11 +214,11 @@ export default function AdminDashboard() {
               <div className="card p-0 overflow-hidden">
                 <div className="table-wrap">
                   <table className="table">
-                    <thead><tr>{['#','Ingredient','Unit','Status'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                    <thead><tr>{['#', 'Ingredient', 'Unit', 'Status'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                     <tbody>
                       {ingredients.map((ing, i) => (
                         <tr key={ing.id}>
-                          <td className="text-slate-400 font-mono text-xs">{String(ing.id).padStart(3,'0')}</td>
+                          <td className="text-slate-400 font-mono text-xs">{String(ing.id).padStart(3, '0')}</td>
                           <td className="font-medium">{ing.name}</td>
                           <td><span className="bg-slate-100 text-slate-600 text-xs px-2.5 py-1 rounded-full font-mono">{ing.unit}</span></td>
                           <td><span className="badge-active">Active</span></td>
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
                 <form onSubmit={dispatchSupply} className="space-y-5">
                   <Field label="Destination Location">
                     <select className="input" value={dispatch.location_id} required
-                      onChange={e => setDispatch(d=>({...d,location_id:e.target.value}))}>
+                      onChange={e => setDispatch(d => ({ ...d, location_id: e.target.value }))}>
                       <option value="">Select a location…</option>
                       {locations.map(l => <option key={l.id} value={l.id}>{l.name}</option>)}
                     </select>
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                   <Field label="Ingredient">
                     <select className="input" value={dispatch.ingredient_id} required
                       onClick={() => !ingredients.length && loadIngredients()}
-                      onChange={e => setDispatch(d=>({...d,ingredient_id:e.target.value}))}>
+                      onChange={e => setDispatch(d => ({ ...d, ingredient_id: e.target.value }))}>
                       <option value="">Select an ingredient…</option>
                       {ingredients.map(i => <option key={i.id} value={i.id}>{i.name} — {i.unit}</option>)}
                     </select>
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                   <Field label="Quantity">
                     <div className="flex gap-2">
                       <input className="input flex-1" type="number" step="0.01" min="0.01" placeholder="0.00"
-                        value={dispatch.quantity} required onChange={e => setDispatch(d=>({...d,quantity:e.target.value}))} />
+                        value={dispatch.quantity} required onChange={e => setDispatch(d => ({ ...d, quantity: e.target.value }))} />
                       <div className="input w-20 text-center bg-slate-50 text-slate-500 text-sm pointer-events-none">
                         {selectedIng?.unit || 'unit'}
                       </div>
@@ -264,7 +264,7 @@ export default function AdminDashboard() {
                   </Field>
                   <Field label="Notes (optional)">
                     <input className="input" placeholder="e.g. Morning delivery batch"
-                      value={dispatch.notes} onChange={e => setDispatch(d=>({...d,notes:e.target.value}))} />
+                      value={dispatch.notes} onChange={e => setDispatch(d => ({ ...d, notes: e.target.value }))} />
                   </Field>
                   <button type="submit" disabled={dispatching} className="btn-primary w-full justify-center py-3">
                     {dispatching ? <span className="flex items-center gap-2">
@@ -283,7 +283,7 @@ export default function AdminDashboard() {
               <div className="card p-0 overflow-hidden">
                 <div className="table-wrap">
                   <table className="table">
-                    <thead><tr>{['Date & Time','Location','Ingredient','Qty Dispatched','Notes'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                    <thead><tr>{['Date & Time', 'Location', 'Ingredient', 'Qty Dispatched', 'Notes'].map(h => <th key={h}>{h}</th>)}</tr></thead>
                     <tbody>
                       {history.map((h, i) => (
                         <tr key={i}>
@@ -313,10 +313,10 @@ export default function AdminDashboard() {
         <form onSubmit={createIngredient} className="space-y-4">
           <Field label="Ingredient Name">
             <input className="input" placeholder="e.g. Chicken Breast" value={ingForm.name} required
-              onChange={e => setIngForm(f=>({...f,name:e.target.value}))} />
+              onChange={e => setIngForm(f => ({ ...f, name: e.target.value }))} />
           </Field>
           <Field label="Unit of Measurement">
-            <UnitSelect value={ingForm.unit} onChange={v => setIngForm(f=>({...f,unit:v}))} />
+            <UnitSelect value={ingForm.unit} onChange={v => setIngForm(f => ({ ...f, unit: v }))} />
           </Field>
           <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-700">
             ⚙️ After adding, ask your <strong>Super Admin</strong> to set Max/Min quantities in Stock Limits.

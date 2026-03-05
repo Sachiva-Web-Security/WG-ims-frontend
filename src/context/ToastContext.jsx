@@ -17,9 +17,9 @@ export function ToastProvider({ children }) {
   const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
   const colors = {
     success: 'bg-white border-l-4 border-emerald-500',
-    error:   'bg-white border-l-4 border-red-500',
+    error: 'bg-white border-l-4 border-red-500',
     warning: 'bg-white border-l-4 border-amber-500',
-    info:    'bg-white border-l-4 border-blue-500',
+    info: 'bg-white border-l-4 border-blue-500',
   };
 
   return (
