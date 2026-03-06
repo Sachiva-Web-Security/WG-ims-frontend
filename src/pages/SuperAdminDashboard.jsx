@@ -96,8 +96,8 @@ function LocationChart({ location, inventory }) {
         {inventory.map(item => (
           <span key={item.ingredient_name}
             className={`text-xs px-2 py-0.5 rounded-full font-medium ${item.status === 'OK' ? 'bg-emerald-100 text-emerald-700' :
-                item.status === 'LOW' ? 'bg-amber-100 text-amber-700' :
-                  'bg-red-100 text-red-700'
+              item.status === 'LOW' ? 'bg-amber-100 text-amber-700' :
+                'bg-red-100 text-red-700'
               }`}>
             {item.ingredient_name}: {item.current_quantity}/{item.max_quantity} {item.unit}
           </span>
@@ -128,6 +128,9 @@ export default function SuperAdminDashboard() {
   const [ingModal, setIngModal] = useState(false);
   const [confirmDel, setConfirmDel] = useState(null);
   const [confirmDelIng, setConfirmDelIng] = useState(null);
+  const [resetPwModal, setResetPwModal] = useState(null); // { id, name }
+  const [resetPwValue, setResetPwValue] = useState('');
+  const [resetPwLoading, setResetPwLoading] = useState(false);
 
   // Forms
   const [userForm, setUserForm] = useState({ name: '', email: '', password: '', role: 'KITCHEN_USER', location_id: '' });
@@ -223,6 +226,20 @@ export default function SuperAdminDashboard() {
       toast('User deactivated', 'warning');
       load('users');
     } catch { toast('Failed to deactivate', 'error'); }
+  };
+
+  const resetUserPassword = async (e) => {
+    e.preventDefault();
+    if (!resetPwValue || resetPwValue.length < 6)
+      return toast('Password must be at least 6 characters', 'error');
+    setResetPwLoading(true);
+    try {
+      await api.post(`/super-admin/users/${resetPwModal.id}/reset-password`, { newPassword: resetPwValue });
+      toast(`Password reset for ${resetPwModal.name}!`, 'success');
+      setResetPwModal(null);
+      setResetPwValue('');
+    } catch (err) { toast(err.response?.data?.error || 'Failed to reset password', 'error'); }
+    setResetPwLoading(false);
   };
 
   // ── Location actions ──────────────────────────────────────────────────────
@@ -506,8 +523,8 @@ export default function SuperAdminDashboard() {
                     <button key={loc.id}
                       onClick={() => setSelectedConfigLoc(String(loc.id))}
                       className={`px-4 py-2 rounded-xl text-sm font-medium transition-all border ${selectedConfigLoc === String(loc.id)
-                          ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
-                          : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                        ? 'bg-slate-800 text-white border-slate-800 shadow-sm'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                         }`}>
                       📍 {loc.name}
                     </button>
@@ -621,7 +638,7 @@ export default function SuperAdminDashboard() {
                 <div className="table-wrap">
                   <table className="table">
                     <thead><tr>
-                      {['Name', 'Email', 'Role', 'Location', 'Status', ''].map(h => <th key={h}>{h}</th>)}
+                      {['Name', 'Email', 'Role', 'Location', 'Status', '', ''].map((h, i) => <th key={i}>{h}</th>)}
                     </tr></thead>
                     <tbody>
                       {filteredUsers.map(u => (
@@ -636,6 +653,12 @@ export default function SuperAdminDashboard() {
                             </span>
                           </td>
                           <td>
+                            <button onClick={() => { setResetPwModal({ id: u.id, name: u.name }); setResetPwValue(''); }}
+                              className="text-xs text-amber-600 hover:text-amber-800 font-medium transition-colors">
+                              🔑 Reset Pwd
+                            </button>
+                          </td>
+                          <td>
                             {u.is_active && (
                               <button onClick={() => setConfirmDel(u.id)}
                                 className="text-xs text-red-500 hover:text-red-700 font-medium transition-colors">
@@ -646,7 +669,7 @@ export default function SuperAdminDashboard() {
                         </tr>
                       ))}
                       {!filteredUsers.length && (
-                        <tr><td colSpan="6"><Empty icon="👤" message="No users found" /></td></tr>
+                        <tr><td colSpan="7"><Empty icon="👤" message="No users found" /></td></tr>
                       )}
                     </tbody>
                   </table>
@@ -818,6 +841,28 @@ export default function SuperAdminDashboard() {
         message="This user will lose access immediately. Their historical data is preserved."
         danger
       />
+
+      {/* Reset user password (Super Admin only) */}
+      <Modal open={!!resetPwModal} onClose={() => { setResetPwModal(null); setResetPwValue(''); }} title="Reset User Password" size="sm">
+        <p className="text-sm text-slate-500 mb-4">
+          Set a new password for <span className="font-semibold text-slate-800">{resetPwModal?.name}</span>.
+          The user should change it after logging in.
+        </p>
+        <form onSubmit={resetUserPassword} className="space-y-4">
+          <div>
+            <label className="label">New Password</label>
+            <input type="password" className="input" placeholder="Min. 6 characters" required
+              value={resetPwValue}
+              onChange={e => setResetPwValue(e.target.value)} />
+          </div>
+          <div className="flex gap-3 justify-end">
+            <button type="button" onClick={() => { setResetPwModal(null); setResetPwValue(''); }} className="btn-secondary">Cancel</button>
+            <button type="submit" className="btn-primary" disabled={resetPwLoading}>
+              {resetPwLoading ? 'Resetting…' : '🔑 Reset Password'}
+            </button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Confirm deactivate ingredient */}
       <ConfirmDialog

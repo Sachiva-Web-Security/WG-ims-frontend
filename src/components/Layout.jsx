@@ -1,11 +1,44 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { RoleBadge } from './UI';
+import api from '../api/axios';
 
 export function Layout({ children, nav }) {
   const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [pwModal, setPwModal] = useState(false);
+  const [pwForm, setPwForm] = useState({ currentPassword: '', newPassword: '', confirm: '' });
+  const [pwError, setPwError] = useState('');
+  const [pwLoading, setPwLoading] = useState(false);
+  const [pwSuccess, setPwSuccess] = useState(false);
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    setPwError('');
+    if (pwForm.newPassword !== pwForm.confirm) {
+      return setPwError('New passwords do not match.');
+    }
+    if (pwForm.newPassword.length < 6) {
+      return setPwError('New password must be at least 6 characters.');
+    }
+    setPwLoading(true);
+    try {
+      await api.put('/auth/change-password', {
+        currentPassword: pwForm.currentPassword,
+        newPassword: pwForm.newPassword,
+      });
+      setPwSuccess(true);
+      setTimeout(() => {
+        setPwModal(false);
+        setPwSuccess(false);
+        setPwForm({ currentPassword: '', newPassword: '', confirm: '' });
+      }, 1500);
+    } catch (err) {
+      setPwError(err.response?.data?.error || 'Failed to change password.');
+    }
+    setPwLoading(false);
+  };
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden">
@@ -53,20 +86,29 @@ export function Layout({ children, nav }) {
         </nav>
 
         {/* User info */}
-        <div className={`p-3 border-t border-white/10 ${collapsed ? '' : ''}`}>
+        <div className={`p-3 border-t border-white/10`}>
           {!collapsed ? (
             <div className="bg-white/5 rounded-xl p-3">
               <p className="text-white text-sm font-medium truncate">{user?.name}</p>
-              <div className="mt-1 mb-2"><RoleBadge role={user?.role} /></div>
+              <div className="mt-1 mb-3"><RoleBadge role={user?.role} /></div>
+              <button onClick={() => setPwModal(true)}
+                className="w-full text-left text-xs text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1.5 mb-2">
+                🔑 Change Password
+              </button>
               <button onClick={logout}
-                className="text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1">
+                className="w-full text-left text-xs text-slate-400 hover:text-white transition-colors flex items-center gap-1.5">
                 ← Sign out
               </button>
             </div>
           ) : (
-            <button onClick={logout} className="sidebar-link w-full justify-center" title="Sign out">
-              ↩
-            </button>
+            <div className="flex flex-col gap-1">
+              <button onClick={() => setPwModal(true)} className="sidebar-link w-full justify-center" title="Change Password">
+                🔑
+              </button>
+              <button onClick={logout} className="sidebar-link w-full justify-center" title="Sign out">
+                ↩
+              </button>
+            </div>
           )}
         </div>
 
@@ -93,6 +135,60 @@ export function Layout({ children, nav }) {
           {children}
         </main>
       </div>
+
+      {/* ── Change Password Modal ──────────────────────────────────────────── */}
+      {pwModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={() => { setPwModal(false); setPwError(''); setPwForm({ currentPassword: '', newPassword: '', confirm: '' }); }} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm fade-up">
+            <div className="flex items-center justify-between p-6 border-b border-slate-100">
+              <h3 className="font-bold text-lg text-slate-800 font-heading">🔑 Change Password</h3>
+              <button onClick={() => { setPwModal(false); setPwError(''); setPwForm({ currentPassword: '', newPassword: '', confirm: '' }); }}
+                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400 transition-colors">✕</button>
+            </div>
+            <div className="p-6">
+              {pwSuccess ? (
+                <div className="text-center py-6">
+                  <div className="text-4xl mb-3">✅</div>
+                  <p className="font-semibold text-emerald-700">Password changed successfully!</p>
+                </div>
+              ) : (
+                <form onSubmit={handleChangePassword} className="space-y-4">
+                  <div>
+                    <label className="label">Current Password</label>
+                    <input type="password" className="input" placeholder="Enter current password" required
+                      value={pwForm.currentPassword}
+                      onChange={e => setPwForm(f => ({ ...f, currentPassword: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="label">New Password</label>
+                    <input type="password" className="input" placeholder="Enter new password" required
+                      value={pwForm.newPassword}
+                      onChange={e => setPwForm(f => ({ ...f, newPassword: e.target.value }))} />
+                  </div>
+                  <div>
+                    <label className="label">Confirm New Password</label>
+                    <input type="password" className="input" placeholder="Repeat new password" required
+                      value={pwForm.confirm}
+                      onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))} />
+                  </div>
+                  {pwError && (
+                    <p className="text-xs text-red-500 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{pwError}</p>
+                  )}
+                  <div className="flex gap-3 justify-end pt-2">
+                    <button type="button" onClick={() => { setPwModal(false); setPwError(''); setPwForm({ currentPassword: '', newPassword: '', confirm: '' }); }}
+                      className="btn-secondary">Cancel</button>
+                    <button type="submit" disabled={pwLoading}
+                      className="btn-primary">
+                      {pwLoading ? 'Saving…' : 'Change Password'}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
